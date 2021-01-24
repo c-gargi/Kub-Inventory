@@ -1,0 +1,15 @@
+syntax = "proto3";
+ 
+package inventory;
+ 
+message InventoryRequest {
+    float amount = 1;
+}
+ 
+message InventoryResponse {
+    string confirmation = 1;
+}
+ 
+service InventoryService {
+    rpc Inventory(InventoryRequest) returns (InventoryResponse) {}
+}
