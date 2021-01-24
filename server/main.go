@@ -6,11 +6,13 @@ import (
 	"log"
 	"net"
  
-	//"github.com/c-gargi/Kub-Inventory/pkg/inventory"
+	"github.com/c-gargi/Kub-Inventory/pkg/inventory"
 	"google.golang.org/grpc"
 )
  
-type server struct {}
+type server struct {
+	inventory.UnimplementedInventoryServiceServer
+}
  
 func main() {
 	log.Println("Server running ...")
