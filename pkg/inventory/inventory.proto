@@ -3,11 +3,16 @@ syntax = "proto3";
 package inventory;
  
 message InventoryRequest {
-    float amount = 1;
+    int32 interval = 1;
+
 }
  
+message EachItem {
+    string poddata = 1;
+}
+
 message InventoryResponse {
-    string confirmation = 1;
+    repeated EachItem items = 1;
 }
  
 service InventoryService {

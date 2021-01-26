@@ -5,7 +5,7 @@ import (
 	"log"
 	"time"
  
-	//"github.com/c-gargi/Kub-Inventory/pkg/inventory"
+	"github.com/c-gargi/Kub-Inventory/pkg/inventory"
 	"google.golang.org/grpc"
 )
  
@@ -18,14 +18,14 @@ func main() {
 	}
 	defer conn.Close()
  
-	client := credit.NewInventoryServiceClient(conn)
+	client := inventory.NewInventoryServiceClient(conn)
  
-	request := &credit.InventoryRequest{Amount: 1990.01}
+	request := &inventory.InventoryRequest{Interval: 1}
  
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
  
-	response, err := client.Inventory(ctx, request)
+	response, err := client.GetInventory(ctx, request)
 	if err != nil {
 		log.Fatalln(err)
 	}
