@@ -12,7 +12,7 @@ message EachItem {
 }
 
 message InventoryResponse {
-    repeated EachItem items = 1;
+    string items = 1;
 }
  
 service InventoryService {

@@ -8,7 +8,7 @@ import (
 
 	"flag"
 	"path/filepath"
-	"time"
+	_"time"
  
 	"github.com/c-gargi/Kub-Inventory/pkg/inventory"
 	"google.golang.org/grpc"
@@ -26,12 +26,13 @@ type server struct {
 	inventory.UnimplementedInventoryServiceServer
 }
  
-func (s *server) GetInventory(ctx context.Context, request *inventory.InventoryRequest) (*inventory.InventoryResponse, error) {
-	log.Println(fmt.Sprintf("Request: %g", request.GetInterval()))
+func (s *server) Inventory(ctx context.Context, request *inventory.InventoryRequest) (*inventory.InventoryResponse, error) {
+	fmt.Printf("Request: %d\n", request.GetInterval())
 
 	/********/
 
 	var kubeconfig *string
+	var respArray string
 	if home := homedir.HomeDir(); home != "" {
 		kubeconfig = flag.String("kubeconfig", filepath.Join(home, ".kube", "config"), "(optional) absolute path to the kubeconfig file")
 	} else {
@@ -42,64 +43,33 @@ func (s *server) GetInventory(ctx context.Context, request *inventory.InventoryR
 	// use the current context in kubeconfig
 	config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
 	if err != nil {
-		panic(err.Error())
+		//panic(err.Error())
 	}
 
 	// create the clientset
 	clientset, err := kubernetes.NewForConfig(config)
 	if err != nil {
+		//panic(err.Error())
+	}
+	
+	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
 		panic(err.Error())
 	}
-	for {
-		pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
-		if err != nil {
-			panic(err.Error())
-		}
-		fmt.Printf("There are %d pods in the cluster\n", len(pods.Items))
-		respArray := [];
-		for _, pod := range pods.Items {
-		   //err = podInterface.Delete(pod.Name, &amp;kapi.DeleteOptions{})
-		   fmt.Printf("Found pod %s in namespace %s\n", pod.Name, pod.Namespace)
-		   eachPod := {Poddata: fmt.Sprintf("Found pod %s in namespace %s\n", pod.Name, pod.Namespace)}
-		   respArray.push(eachPod)
-		   // if err != nil {
-		   //    log.Printf(“Error: %s”, err)
-		   // }
-		}
-
-		hr := InventoryResponse{
-			Items: respArray,
-		}
-		//fmt.Printf("There are %d pods in the cluster\n", pods.Items)
-
-		// Examples for error handling:
-		// - Use helper functions like e.g. errors.IsNotFound()
-		// - And/or cast to StatusError and use its properties like e.g. ErrStatus.Message
-		// namespace := "default"
-		// pod := "example-xxxxx"
-		// _, err = clientset.CoreV1().Pods("").Get(context.TODO(), pod, metav1.GetOptions{})
-		// if errors.IsNotFound(err) {
-		// 	fmt.Printf("Pod %s in namespace %s not found\n", pod, namespace)
-		// } else if statusError, isStatus := err.(*errors.StatusError); isStatus {
-		// 	fmt.Printf("Error getting pod %s in namespace %s: %v\n",
-		// 		pod, namespace, statusError.ErrStatus.Message)
-		// } else if err != nil {
-		// 	panic(err.Error())
-		// } else {
-		// 	fmt.Printf("Found pod %s in namespace %s\n", pod, namespace)
-		// }
-
-		time.Sleep(10 * time.Second)
+	fmt.Printf("There are %d pods in the cluster\n", len(pods.Items))	
+	for _, pod := range pods.Items {
+	   //err = podInterface.Delete(pod.Name, &amp;kapi.DeleteOptions{})
+	   //fmt.Printf("Found pod %s in namespace %s\n", pod.Name, pod.Namespace)
+	   respArray += "Found pod "+pod.Name+" in namespace "+pod.Namespace+" \n"
+	   // if err != nil {
+	   //    log.Printf(“Error: %s”, err)
+	   // }
 	}
+	
+	fmt.Printf(respArray)
+	
+	return &inventory.InventoryResponse{Items: respArray}, nil
 
-
-
-
-
-	/********/
- 
-	//return &inventory.InventoryResponse{Confirmation: fmt.Sprintf("Credited %g", request.GetInterval())}, nil
-	return &hr, nil
 }
 
 
